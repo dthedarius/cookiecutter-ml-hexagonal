@@ -100,6 +100,7 @@ def test_generated_project_has_required_files(cookies, default_context):
         "tests/unit/domain/test_predictor_service.py",
         ".github/workflows/ci.yml",
         ".github/workflows/ml-validation.yml",
+        "ROADMAP.md",
     ]
 
     for filepath in required_files:
@@ -148,3 +149,40 @@ def test_generated_project_sklearn_framework(cookies, default_context):
     pyproject_content = (project / "pyproject.toml").read_text()
     assert "joblib" in pyproject_content
     assert "transformers" not in pyproject_content
+
+
+def test_generated_project_with_notebooks(cookies, default_context):
+    """Test that notebooks are generated when include_notebooks is yes."""
+    default_context["include_notebooks"] = "yes"
+    result = cookies.bake(extra_context=default_context)
+    project = result.project_path
+
+    assert (project / "notebooks").is_dir()
+    assert (project / "notebooks/01_exploratory_data_analysis.ipynb").exists()
+    assert (project / "notebooks/02_baseline_model.ipynb").exists()
+    assert (project / "notebooks/03_model_experiments.ipynb").exists()
+
+    pyproject_content = (project / "pyproject.toml").read_text()
+    assert "jupyter" in pyproject_content
+
+
+def test_generated_project_without_notebooks(cookies, default_context):
+    """Test that notebooks directory is removed when include_notebooks is no."""
+    result = cookies.bake(extra_context=default_context)
+    project = result.project_path
+
+    assert not (project / "notebooks").exists()
+
+
+def test_generated_project_has_roadmap(cookies, default_context):
+    """Test that ROADMAP.md is generated with lifecycle and scientific method."""
+    result = cookies.bake(extra_context=default_context)
+    project = result.project_path
+
+    assert (project / "ROADMAP.md").exists()
+    roadmap_content = (project / "ROADMAP.md").read_text()
+    assert "Phase 1" in roadmap_content
+    assert "Agent Orchestration" in roadmap_content
+    assert "Scientific Method" in roadmap_content
+    assert "HYPOTHESIZE" in roadmap_content
+    assert "Refuted" in roadmap_content

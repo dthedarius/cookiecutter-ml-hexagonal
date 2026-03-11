@@ -38,6 +38,7 @@ make validate-data               # Validate data against schemas
 make preprocess                  # Tokenize and split data
 make train                       # Train model
 make evaluate                    # Evaluate performance
+make pipeline                    # Full pipeline: generate → validate → preprocess → train → evaluate
 make mlflow-ui                   # MLflow UI (port 5000)
 make experiment config=configs/experiment/<name>.yaml  # Run experiment
 make experiment-all              # Run all experiments
@@ -104,3 +105,12 @@ configs/                         # YAML configs
 - **Simplicity First**: Make every change as simple as possible
 - **No Laziness**: Find root causes. No temporary fixes
 - **Minimal Impact**: Changes should only touch what's necessary
+
+## ML Project Lifecycle
+Follow the [ROADMAP.md](ROADMAP.md) for the full lifecycle:
+1. **Explore** -- EDA notebooks, data profiling, problem understanding
+2. **Baseline** -- Rule-based baseline model, establish performance floor
+3. **Experiment** -- Iterate on models, track with MLflow, compare runs
+4. **Validate** -- Tests pass, metrics above target, data validated
+5. **Deploy** -- Docker build, CI/CD green, health checks pass
+6. **Monitor** -- Track drift, retrain when needed

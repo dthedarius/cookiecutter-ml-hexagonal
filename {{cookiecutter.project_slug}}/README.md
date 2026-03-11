@@ -15,6 +15,46 @@ make check
 make serve
 ```
 
+## ML Workflow
+
+Follow the [ROADMAP.md](ROADMAP.md) for the complete project lifecycle.
+
+### 1. Explore Data
+{% if cookiecutter.include_notebooks == "yes" %}
+
+```bash
+uv sync --extra notebooks
+jupyter notebook notebooks/01_exploratory_data_analysis.ipynb
+```
+{% endif %}
+
+```bash
+make generate-data   # Generate sample data
+make validate-data   # Validate data schemas
+```
+
+### 2. Train & Evaluate
+
+```bash
+make preprocess      # Preprocess raw data into train/val/test splits
+make experiment config=configs/experiment/baseline.yaml
+make compare         # Compare MLflow runs
+make mlflow-ui       # View at http://localhost:5000
+```
+
+### 3. Run Full Pipeline
+
+```bash
+make pipeline        # generate-data → validate → preprocess → train → evaluate
+```
+
+### 4. Deploy
+
+```bash
+make docker-build    # Build Docker image
+docker compose up -d # API at :8000, MLflow at :5000
+```
+
 ## API
 
 ```bash
@@ -25,33 +65,6 @@ curl -X POST http://localhost:8000/predict \
 
 # Health check
 curl http://localhost:8000/health/ready
-```
-
-## ML Pipeline
-
-```bash
-# Generate sample data
-make generate-data
-
-# Validate data
-make validate-data
-
-# Run an experiment
-make experiment config=configs/experiment/baseline.yaml
-
-# Compare runs
-make compare
-
-# MLflow UI
-make mlflow-ui
-```
-
-## Docker
-
-```bash
-docker compose up -d
-# API at http://localhost:8000
-# MLflow at http://localhost:5000
 ```
 
 ## Project Structure

@@ -106,14 +106,16 @@ Each phase is designed to be completed sequentially, with clear deliverables and
 ## Agent Orchestration Plan
 
 This section describes how AI agents can autonomously execute the ML lifecycle above.
+Each agent follows the **scientific method**: form a hypothesis, test it, and iterate until validated.
 
 ### Architecture: Orchestrator + Specialized Sub-Agents
 
 ```
-┌─────────────────────────────────────┐
-│         Orchestrator Agent          │
-│  (reads ROADMAP, tracks progress)   │
-└──────────────┬──────────────────────┘
+┌──────────────────────────────────────────┐
+│           Orchestrator Agent             │
+│  (reads ROADMAP, tracks progress,        │
+│   enforces hypothesis-driven iteration)  │
+└──────────────┬───────────────────────────┘
                │
     ┌──────────┼──────────────┐
     │          │              │
@@ -124,14 +126,49 @@ This section describes how AI agents can autonomously execute the ML lifecycle a
 └────────┘ └────────┘  └──────────┘
 ```
 
+### Scientific Method Loop
+
+Every sub-agent follows the same iterative loop. The orchestrator enforces this cycle
+and decides when enough hypotheses have been validated to move to the next phase.
+
+```
+  ┌─────────────────────────────────────┐
+  │  1. OBSERVE — Examine data/results  │
+  └──────────────┬──────────────────────┘
+                 ▼
+  ┌─────────────────────────────────────┐
+  │  2. HYPOTHESIZE — Formulate a       │
+  │     testable hypothesis             │
+  └──────────────┬──────────────────────┘
+                 ▼
+  ┌─────────────────────────────────────┐
+  │  3. TEST — Run experiment/analysis  │
+  │     to validate or refute           │
+  └──────────────┬──────────────────────┘
+                 ▼
+  ┌─────────────────────────────────────┐
+  │  4. CONCLUDE                        │
+  │     ✓ Validated → Record finding    │
+  │     ✗ Refuted → Update hypothesis   │
+  │       and return to step 2          │
+  └──────────────┬──────────────────────┘
+                 ▼
+  ┌─────────────────────────────────────┐
+  │  5. ITERATE — Repeat until all key  │
+  │     hypotheses are resolved         │
+  └─────────────────────────────────────┘
+```
+
 ### Orchestrator Agent
 
-**Role:** Reads this ROADMAP, determines current phase, delegates to sub-agents, and tracks progress.
+**Role:** Reads this ROADMAP, determines current phase, delegates to sub-agents, enforces the
+scientific method loop, and tracks progress.
 
 **Responsibilities:**
 - Parse ROADMAP.md to determine which phase/task is next
 - Delegate tasks to the appropriate sub-agent
 - Validate deliverables after each sub-agent completes
+- **Review the hypothesis log** after each iteration: decide whether to iterate again or move on
 - Update checklist status in ROADMAP.md
 - Decide when to move to the next phase
 
@@ -139,19 +176,40 @@ This section describes how AI agents can autonomously execute the ML lifecycle a
 
 **Scope:** Phase 1 — Problem Understanding & Data Exploration
 
+**Scientific method applied to EDA:**
+
+| Step | EDA Example |
+|------|-------------|
+| **Observe** | Load data, compute summary statistics, plot distributions |
+| **Hypothesize** | "Class imbalance > 80/20 will degrade recall" |
+| **Test** | Measure class distribution, run a quick baseline to check recall |
+| **Conclude** | Validated → plan oversampling. Refuted → update hypothesis |
+| **Iterate** | New hypothesis: "Text length correlates with label" → test → conclude |
+
 **Capabilities:**
 - Load and profile datasets (summary statistics, distributions)
 - Detect data quality issues (missing values, duplicates, outliers)
 - Identify problem type (classification vs regression vs clustering)
 - Generate visualizations in notebooks
+- **Maintain a hypothesis log** in the EDA notebook (hypothesis, test, result, conclusion)
 - Write findings to `notebooks/01_exploratory_data_analysis.ipynb`
 
 **Inputs:** Raw data in `data/raw/`
-**Outputs:** Completed EDA notebook, data quality report
+**Outputs:** Completed EDA notebook with hypothesis log, data quality report
 
 ### Sub-Agent 2: Training Agent
 
 **Scope:** Phases 2–4 — Baseline, Experimentation, Validation
+
+**Scientific method applied to training:**
+
+| Step | Training Example |
+|------|-----------------|
+| **Observe** | Baseline achieves F1=0.60, confusion matrix shows false negatives |
+| **Hypothesize** | "Adding class weights will improve recall by 10%+" |
+| **Test** | Train with class weights, evaluate on validation set |
+| **Conclude** | Validated → keep change. Refuted → revert, try different approach |
+| **Iterate** | New hypothesis: "Larger model will improve precision" → test → conclude |
 
 **Capabilities:**
 - Generate and preprocess training data (`make generate-data`, `make preprocess`)
@@ -159,10 +217,11 @@ This section describes how AI agents can autonomously execute the ML lifecycle a
 - Implement new model adapters (following `ModelPort` protocol)
 - Create experiment configs and run experiments
 - Compare MLflow runs and select best model
+- **Log each hypothesis with its experiment run ID** in MLflow tags
 - Write and run tests (`make test-unit`, `make test-integration`)
 
 **Inputs:** Preprocessed data in `data/processed/`, experiment configs
-**Outputs:** Trained model artifacts, MLflow experiment runs, passing tests
+**Outputs:** Trained model artifacts, MLflow experiment runs (tagged with hypotheses), passing tests
 
 ### Sub-Agent 3: Deployment Agent
 
@@ -181,17 +240,22 @@ This section describes how AI agents can autonomously execute the ML lifecycle a
 ### Agent Workflow
 
 ```
-1. Orchestrator reads ROADMAP.md → identifies Phase 1 incomplete
-2. Orchestrator delegates to EDA Agent
-3. EDA Agent runs notebooks, reports findings
-4. Orchestrator validates Phase 1 deliverables → marks complete
-5. Orchestrator delegates to Training Agent for Phase 2
-6. Training Agent runs baseline, reports metrics
-7. Orchestrator checks if baseline meets target → proceeds to Phase 3
-8. Training Agent iterates on models until target met
-9. Orchestrator validates Phase 4 (testing) → delegates to Deployment Agent
-10. Deployment Agent builds, deploys, verifies
-11. Orchestrator marks all phases complete
+ 1. Orchestrator reads ROADMAP.md → identifies Phase 1 incomplete
+ 2. Orchestrator delegates to EDA Agent
+ 3. EDA Agent: OBSERVE data → HYPOTHESIZE → TEST → CONCLUDE
+    ├── Hypothesis validated → record finding, try next hypothesis
+    └── Hypothesis refuted → update hypothesis, loop back to step 3
+ 4. EDA Agent reports: all key hypotheses resolved
+ 5. Orchestrator validates Phase 1 deliverables → marks complete
+ 6. Orchestrator delegates to Training Agent for Phase 2
+ 7. Training Agent runs baseline → records metrics
+ 8. Orchestrator checks if baseline meets target → proceeds to Phase 3
+ 9. Training Agent: OBSERVE metrics → HYPOTHESIZE improvement → TEST → CONCLUDE
+    ├── Target met → proceed to Phase 4
+    └── Target not met → update hypothesis, loop back to step 9
+10. Orchestrator validates Phase 4 (testing) → delegates to Deployment Agent
+11. Deployment Agent builds, deploys, verifies
+12. Orchestrator marks all phases complete
 ```
 
 ### Agent Instructions Location

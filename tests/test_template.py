@@ -175,7 +175,7 @@ def test_generated_project_without_notebooks(cookies, default_context):
 
 
 def test_generated_project_has_roadmap(cookies, default_context):
-    """Test that ROADMAP.md is generated."""
+    """Test that ROADMAP.md is generated with lifecycle and scientific method."""
     result = cookies.bake(extra_context=default_context)
     project = result.project_path
 
@@ -183,3 +183,6 @@ def test_generated_project_has_roadmap(cookies, default_context):
     roadmap_content = (project / "ROADMAP.md").read_text()
     assert "Phase 1" in roadmap_content
     assert "Agent Orchestration" in roadmap_content
+    assert "Scientific Method" in roadmap_content
+    assert "HYPOTHESIZE" in roadmap_content
+    assert "Refuted" in roadmap_content

@@ -31,7 +31,8 @@ Every run MUST produce these outputs. The orchestrator validates each one:
 | 3 | Target distribution                  | Class counts or target histogram plotted     |
 | 4 | Missing value report                 | Count of nulls per column documented         |
 | 5 | At least 2 visualizations            | Saved as cells with visible output           |
-| 6 | Findings summary                     | Markdown cell with key observations          |
+| 6 | Hypothesis log                       | All hypotheses tested with results           |
+| 7 | Findings summary                     | Markdown cell with key observations          |
 
 ## Scientific Method Protocol
 

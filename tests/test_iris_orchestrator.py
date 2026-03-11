@@ -613,7 +613,7 @@ class TestAgentInstructionFiles:
             pytest.skip("Template generation failed (pre-existing hook issue)")
 
         orchestrator = (result.project_path / ".github/instructions/orchestrator.md").read_text()
-        assert "Max Iterations" in orchestrator or "max_iterations" in orchestrator.lower() or "Max iterations" in orchestrator
+        assert "max iterations" in orchestrator.lower()
         assert "iteration" in orchestrator.lower()
 
     def test_copilot_references_agents(self, cookies):

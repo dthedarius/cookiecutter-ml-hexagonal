@@ -41,7 +41,7 @@ You handle model training, evaluation, and validation across Phases 2–4 of the
 | # | Deliverable                    | Success Metric                                    |
 |---|--------------------------------|---------------------------------------------------|
 | 1 | Baseline model trained         | Model produces predictions                        |
-| 2 | Baseline metrics recorded      | accuracy, precision, recall, F1 computed           |
+| 2 | Baseline metrics recorded      | accuracy, precision, recall, f1 computed           |
 | 3 | Metrics logged                 | Saved to MLflow or `metrics/baseline.json`         |
 | 4 | Baseline notebook              | `notebooks/02_baseline_model.ipynb` completed      |
 

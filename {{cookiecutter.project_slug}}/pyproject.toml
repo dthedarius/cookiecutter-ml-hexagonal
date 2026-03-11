@@ -1,0 +1,80 @@
+[project]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = "{{ cookiecutter.project_description }}"
+readme = "README.md"
+requires-python = ">={{ cookiecutter.python_version }}"
+authors = [
+    { name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}" },
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "mlflow>=2.20.0",
+    "scikit-learn>=1.6.0",
+    "pyyaml>=6.0.0",
+    "numpy>=1.26.0",
+    "structlog>=24.0.0",
+    "prometheus-client>=0.21.0",
+{% if cookiecutter.model_framework == "huggingface" %}
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "datasets>=3.0.0",
+    "accelerate>=0.26.0",
+{% elif cookiecutter.model_framework == "sklearn" %}
+    "joblib>=1.4.0",
+{% endif %}
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+    "httpx>=0.28.0",
+    "pre-commit>=4.0.0",
+    "types-PyYAML>=6.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+markers = [
+    "integration: mark test as integration test",
+]
+
+[tool.mypy]
+mypy_path = "src"
+packages = ["{{ cookiecutter.project_slug }}"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pydantic_settings.*",
+    "structlog.*",
+    "prometheus_client.*",
+    "mlflow.*",
+    "sklearn.*",
+    "datasets.*",
+    "transformers.*",
+    "torch.*",
+    "accelerate.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

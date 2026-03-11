@@ -1,0 +1,12 @@
+app:
+  debug: false
+  log_level: WARNING
+  host: "0.0.0.0"
+  port: 8000
+
+model:
+  threshold: {{ cookiecutter.prediction_threshold }}
+
+mlflow:
+  tracking_uri: "${MLFLOW_TRACKING_URI}"
+  experiment_name: "{{ cookiecutter.project_slug }}_prod"

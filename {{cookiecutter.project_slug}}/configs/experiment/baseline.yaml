@@ -1,0 +1,5 @@
+name: baseline
+description: Baseline model using rule-based matching
+model: baseline
+metric_to_optimize: {{ cookiecutter.primary_metric }}
+target_metric_value: {{ cookiecutter.target_metric_value }}

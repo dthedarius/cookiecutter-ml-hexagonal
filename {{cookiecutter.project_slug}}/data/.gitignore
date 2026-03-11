@@ -1,0 +1,6 @@
+# Ignore generated and processed data (keep raw/)
+generated/
+processed/
+*.csv
+*.parquet
+!raw/.gitkeep

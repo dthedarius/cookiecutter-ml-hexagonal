@@ -38,6 +38,13 @@ dev = [
     "pre-commit>=4.0.0",
     "types-PyYAML>=6.0.0",
 ]
+{% if cookiecutter.include_notebooks == "yes" %}
+notebooks = [
+    "jupyter>=1.0.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+]
+{% endif %}
 
 [build-system]
 requires = ["setuptools>=75.0"]

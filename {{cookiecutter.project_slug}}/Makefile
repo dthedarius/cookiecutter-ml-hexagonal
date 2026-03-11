@@ -29,6 +29,8 @@ serve:
 mlflow-ui:
 	uv run mlflow ui --port 5000
 
+# --- ML Pipeline ---
+
 generate-data:
 	uv run python pipelines/data_generation/generate.py
 
@@ -54,6 +56,11 @@ experiment-all:
 
 compare:
 	PYTHONPATH=src:. uv run python -m pipelines.evaluation.compare_runs
+
+pipeline: generate-data validate-data preprocess train evaluate
+	@echo "Full ML pipeline complete."
+
+# --- Docker ---
 
 docker-build:
 	docker build -t {{ cookiecutter.project_slug }}:latest .
